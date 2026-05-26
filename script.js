@@ -5,6 +5,9 @@ const CELL_PADDING = 2;
 const ROWS = 10;
 const COLUMNS = 12;
 
+const COLOR_TRANSITION_DELAY = 150;
+const PROPAGATE_DELAY = 50;
+
 const grid = [];
 
 let animating = false;
@@ -37,7 +40,7 @@ for (let i = 0; i < ROWS; i++) {
       animating = true;
       const maxRowDist = Math.max(i, ROWS - 1 - i);
       const maxColDist = Math.max(j, COLUMNS - 1 - j);
-      const longestDelay = Math.max(maxRowDist, maxColDist) * 50;
+      const longestDelay = Math.max(maxRowDist, maxColDist) * PROPAGATE_DELAY;
 
       for (let k = 0; k < ROWS; k++) {
         if (k === i) {
@@ -49,9 +52,9 @@ for (let i = 0; i < ROWS; i++) {
             grid[k][j].style.backgroundColor = "white";
             setTimeout(() => {
               grid[k][j].style.backgroundColor = currentColor;
-            }, 150);
+            }, COLOR_TRANSITION_DELAY);
           },
-          50 * Math.abs(k - i),
+          PROPAGATE_DELAY * Math.abs(k - i),
         );
       }
       for (let k = 0; k < COLUMNS; k++) {
@@ -64,19 +67,19 @@ for (let i = 0; i < ROWS; i++) {
             grid[i][k].style.backgroundColor = "white";
             setTimeout(() => {
               grid[i][k].style.backgroundColor = currentColor;
-            }, 150);
+            }, COLOR_TRANSITION_DELAY);
           },
-          50 * Math.abs(k - j),
+          PROPAGATE_DELAY * Math.abs(k - j),
         );
       }
       cell.style.backgroundColor = "white";
       setTimeout(() => {
         cell.style.backgroundColor = cellColor;
-      }, 100);
+      }, COLOR_TRANSITION_DELAY);
 
       setTimeout(() => {
         animating = false;
-      }, longestDelay + 100);
+      }, longestDelay + COLOR_TRANSITION_DELAY);
     });
 
     colContainer.appendChild(cell);
