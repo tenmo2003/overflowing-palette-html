@@ -1,20 +1,13 @@
-const colors = [
-  "red",
-  "orange",
-  "yellow",
-  "green",
-  "blue",
-  "indigo",
-  "purple",
-  "pink",
-];
+const colors = ["#D64545", "#F7E881", "#5BA16C", "#6897E9"];
 
-const CELL_SIZE = 40;
+const CELL_SIZE = 50;
 const CELL_PADDING = 2;
 const ROWS = 10;
 const COLUMNS = 12;
 
 const grid = [];
+
+let animating = false;
 
 const rowContainer = document.createElement("div");
 rowContainer.classList.add("flex", "flex-col");
@@ -23,6 +16,7 @@ for (let i = 0; i < ROWS; i++) {
   const colContainer = document.createElement("div");
   colContainer.classList.add("flex");
   for (let j = 0; j < COLUMNS; j++) {
+    const cellColor = colors[Math.floor(Math.random() * colors.length)];
     const cell = document.createElement("div");
     cell.classList.add(
       `w-[${CELL_SIZE}px]`,
@@ -30,22 +24,31 @@ for (let i = 0; i < ROWS; i++) {
       "cursor-pointer",
       "transition-all",
       "duration-300",
+      `hover:bg-[radial-gradient(circle,transparent_40%,white_100%)]`,
     );
-    cell.style.backgroundColor = "yellow";
+    cell.style.backgroundColor = cellColor;
     cell.style.border = "1px solid black";
-    // cell.style.borderRadius = "10px";
+    cell.style.borderRadius = "10px";
 
-    // ripple effect through items within same col and row
     cell.addEventListener("click", () => {
+      if (animating) {
+        return;
+      }
+      animating = true;
+      const maxRowDist = Math.max(i, ROWS - 1 - i);
+      const maxColDist = Math.max(j, COLUMNS - 1 - j);
+      const longestDelay = Math.max(maxRowDist, maxColDist) * 50;
+
       for (let k = 0; k < ROWS; k++) {
         if (k === i) {
           continue;
         }
         setTimeout(
           () => {
-            grid[k][j].style.backgroundColor = "red";
+            const currentColor = grid[k][j].style.backgroundColor;
+            grid[k][j].style.backgroundColor = "white";
             setTimeout(() => {
-              grid[k][j].style.backgroundColor = "yellow";
+              grid[k][j].style.backgroundColor = currentColor;
             }, 150);
           },
           50 * Math.abs(k - i),
@@ -57,18 +60,23 @@ for (let i = 0; i < ROWS; i++) {
         }
         setTimeout(
           () => {
-            grid[i][k].style.backgroundColor = "red";
+            const currentColor = grid[i][k].style.backgroundColor;
+            grid[i][k].style.backgroundColor = "white";
             setTimeout(() => {
-              grid[i][k].style.backgroundColor = "yellow";
+              grid[i][k].style.backgroundColor = currentColor;
             }, 150);
           },
           50 * Math.abs(k - j),
         );
       }
-      cell.style.backgroundColor = "red";
+      cell.style.backgroundColor = "white";
       setTimeout(() => {
-        cell.style.backgroundColor = "yellow";
+        cell.style.backgroundColor = cellColor;
       }, 100);
+
+      setTimeout(() => {
+        animating = false;
+      }, longestDelay + 100);
     });
 
     colContainer.appendChild(cell);
