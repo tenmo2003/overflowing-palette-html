@@ -1,12 +1,53 @@
 const colors = ["#D64545", "#F7E881", "#5BA16C", "#6897E9"];
 
+let selectedColor = colors[0];
+const colorSelector = document.getElementById("color-selector");
+
+const selectedMarker = document.createElement("span");
+selectedMarker.classList.add(
+  "text-green-500",
+  "font-bold",
+  "absolute",
+  "t-[50%]",
+  "l-[50%]",
+  "translate-x-[-50%]",
+  "translate-y-[-50%]",
+  "[-[webkit-text-stroke:_1px_black]]",
+);
+selectedMarker.innerText = "✓";
+
+let selectedButton = null;
+
+for (let i = 0; i < colors.length; i++) {
+  const color = colors[i];
+  const button = document.createElement("button");
+  button.classList.add(
+    "w-10",
+    "h-10",
+    "rounded-full",
+    "border-2",
+    "border-black",
+  );
+  button.style.backgroundColor = color;
+  button.addEventListener("click", () => {
+    selectedColor = color;
+    selectedButton = button;
+    button.appendChild(selectedMarker);
+  });
+  colorSelector.appendChild(button);
+  if (i === 0) {
+    selectedButton = button;
+    button.appendChild(selectedMarker);
+  }
+}
+
 const CELL_SIZE = 50;
 const CELL_PADDING = 2;
 const ROWS = 10;
 const COLUMNS = 12;
 
-const COLOR_TRANSITION_DELAY = 150;
-const PROPAGATE_DELAY = 500;
+const COLOR_TRANSITION_DELAY = 100;
+const PROPAGATE_DELAY = 100;
 
 const grid = [];
 
@@ -47,7 +88,6 @@ for (let i = 0; i < ROWS; i++) {
       }
       // dfs(i, j, visited, i, j, cell.style.backgroundColor);
       bfs(i, j, cell.style.backgroundColor, visited);
-      animating = false;
     });
 
     colContainer.appendChild(cell);
@@ -134,20 +174,20 @@ const NEIGHBORS = [
 ];
 
 function bfs(src_i, src_j, src_color, visited) {
+  const finalSelectedColor = selectedColor;
   let queue = [];
   queue.push([src_i, src_j]);
-  let distance = 1;
+  let distance = 0;
   while (queue.length > 0) {
     const currentLevel = queue.length;
     for (let m = 0; m < currentLevel; m++) {
       const [i, j] = queue.shift();
-      console.log(i, j, distance);
       visited[i][j] = true;
-      const currentColor = grid[i][j].style.backgroundColor;
+      // const currentColor = grid[i][j].style.backgroundColor;
       setTimeout(() => {
         grid[i][j].style.backgroundColor = "white";
         setTimeout(() => {
-          grid[i][j].style.backgroundColor = currentColor;
+          grid[i][j].style.backgroundColor = finalSelectedColor;
         }, COLOR_TRANSITION_DELAY);
       }, PROPAGATE_DELAY * distance);
       for (let k = 0; k < 4; k++) {
@@ -164,6 +204,9 @@ function bfs(src_i, src_j, src_color, visited) {
     }
     distance++;
   }
+  setTimeout(() => {
+    animating = false;
+  }, distance * PROPAGATE_DELAY);
 }
 
 function outOfBounds(i, j) {
